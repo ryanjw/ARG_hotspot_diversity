@@ -1,4 +1,4 @@
-# HMP
+# HMP analysis was not included in this paper
 
 args<-read.table("~/Desktop/big_ARG_data/refgenome_data/hmp-arg.summary",sep="\t",header=T,check.names=F)
 head(args[,1:10])
@@ -57,7 +57,7 @@ variable== "tr|B2BE20|B2BE20_9BACT"        |
 variable== "tr|C6GC53|C6GC53_9BACT"        |
 variable== "tr|C6GC77|C6GC77_9BACT"        |
 variable== "tr|C6GC91|C6GC91_9BACT"        |
-variable== "tr|W0RY67|W0RY67_KLEPN"   
+variable== "tr|W0RY67|W0RY67_KLEPN"
 & value > 0)
 length(unique(ints_melt$ref))
 # makes no difference here

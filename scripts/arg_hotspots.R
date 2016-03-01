@@ -132,7 +132,7 @@ ggtern::ggtern(arg_ints_m)+geom_point(aes(x=totals_q,y=alpha_q,z=ints_totals_nor
 
 # What are the summary statistics for these different hotspot types
 head(arg_ints_m)
-hotspot_stats<-ddply(arg_ints_m, .(environment,project),summarise,
+hotspot_stats<-ddply(arg_ints_m, .(environment),summarise,
 q_total=mean(totals_q),
 total=mean(totals_norm)*1000000,
 total_sd=sd(totals_norm)*1000000,
@@ -168,7 +168,7 @@ df<-data.frame(arg_ints_m,x,y,z,psx,psy,psz)
 
 ddply(df, .(environment),summarise, count=length(unique(dup)))
 df_sub<-subset(df, environment=="freshwater habitat" | environment=="marine habitat" | environment=="soil" | environment=="waste water/sludge")
-envs<-as.vector(unique(df_sub$environment))
+envs<-as.vector(unique(df$environment))
 head(df_sub)
 df_final<-data.frame()
 for(i in 1:length(envs)){
@@ -194,16 +194,21 @@ for(i in 1:length(envs)){
 	
 }
 
+# supplemental table 1 info along with above stats (using x,y,z)
 head(df_final)
-final_stats<-ddply(df_final, .(environment, ab_hot), summarise,
+final_stats<-ddply(df_final, .(environment), summarise,
 m=mean(z)*1000000,
 sd=sd(z)*1000000,
 lo=quantile(z, 0.025)*1000000,
 hi=quantile(z, 0.975)*1000000,
 min=min(z)*1000000,
-max=max(z)*1000000
+max=max(z)*1000000,
+cv=sd/m
 )
 final_stats
+
+head(df_sub)
+
 
 # looking at abundance of indicator ARGs across hotspots and not hotspots
 args_env_cast<-read.table("./args_environment_1007_metas.txt",sep="\t",header=T)

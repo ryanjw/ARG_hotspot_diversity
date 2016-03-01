@@ -1,3 +1,5 @@
+# using an indicator species analysis to generate which samples are indicative of 95th percentile
+
 library(indicspecies)
 args_env_cast<-read.table("./args_environment_1007_metas.txt",sep="\t",header=T,check.names=F)
 head(args_env_cast[,1:10])

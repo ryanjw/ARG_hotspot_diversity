@@ -30,6 +30,7 @@ ARG == "ZP_04557016" |
 ARG == "ZP_04576183" |
 ARG == "ZP_04623897" )
 
+# data wrangling and merging
 sample_count<-ddply(m_arg_sub, .(project), summarise,samples=length(unique(name)))
 
 m_arg_sub<-merge(m_arg_sub, sample_count,by="project")
@@ -37,21 +38,31 @@ m_arg_repped<-subset(m_arg_sub, samples >=5)
 dim(m_arg_repped)
 head(m_arg_repped)
 
+# casting into a matrix based on samples that have >= samples
 soils_hotargs_cast<-dcast(m_arg_repped, project+name~ARG, value.var="count_arg",fun.aggregate=mean, fill=0 )
 dim(soils_hotargs_cast)
 
+# removing integrases that weren't good
 m_int_slim<-m_int[ m_int$project %in% m_arg_repped$project,]
 head(m_int_slim)
+
+# casting out long-form int data into a matrix
 soils_int_cast<-dcast(subset(m_int_slim, count > 0), project+name~IntI1, value.var="count",fun.aggregate=mean, fill=0 )
 head(soils_int_cast)
 
+
+# merging int and arg matrices
 args_ints<-merge(soils_hotargs_cast,soils_int_cast,by=c("project","name"))
+
+# loading libraries that may be redundant
 library(Hmisc)
 library(fdrtool)
 library(vegan)
 library(plyr)
 library(reshape2)
 
+
+# removing unnecessary samples before merging in recas to lesson memory usage
 head(m_reca)
 m_reca_slim<-m_reca[ m_reca$project %in% m_arg_repped$project,]
 length(unique(m_reca_slim$project))
@@ -96,6 +107,10 @@ for(i in 4:length(treatments)){
 
 final_full_results<-na.omit(final_full_results)
 
+
+# making summary statistics for each link in the network.  This is an important step!!!
+# The rationale behind this is to determine which co-occurrence relationships are consistent (e.g. have CI's that do not overlap 0) across all samples.
+
 stats_final<-ddply(final_full_results, .(Var1,Var2),summarise,.progress="text",
 rhos=mean(rho),
 rho_lo=quantile(rho,0.025),
@@ -103,6 +118,8 @@ qvals=mean(qval),
 qvals_hi=quantile(qval, 0.975,na.rm=T)
 )
 
+
+# making edgelist
 g_list<-(subset(stats_final, rho_lo > 0 & qvals_hi < 0.05))
 
 
@@ -148,8 +165,11 @@ head(vs_m)
 as.vector(unique(vs_m$gene_name))
 gnet<-asNetwork(gnet)
 df<-asDF(gnet)
-
+??asNetwork
 ggnet(gnet, size=0,method="kamadakawaii",segment.size=df$edges$weight/2)+geom_point(aes(colour=vs_m$gene_name,shape=vs_m$antibiotic),size=4,alpha=0.75)
-
-
 +geom_point(aes(colour=vs$metadata,shape=vs$shapes),size=4,alpha=0.75)+scale_colour_manual(name="Gene Info",values=c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628","#f781bf","black","grey40"))+scale_shape_manual(name="Antibiotic",values=c(17,5,3,7,8,15,11,16))
+vs_m$gene<-factor(vs_m$gene,levels=c( "recA",  "intI1", "bl1_sm", "emrd",   "macb",   "opra",    "rosb",   "tetpb",  "tetq",   "tetw" ))
+# making appropriate legend for pub
+
+levels(vs_m$gene)[3]<-"ampC(bl1_sm)"
+ggplot(subset(vs_m))+geom_point(aes(x=var_type,y=intergraph_id,shape=origin,colour=gene))+scale_colour_manual(name="Gene Name",values=rev(c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628","#f781bf","grey40","black")))+theme(legend.text=element_text(face=3))

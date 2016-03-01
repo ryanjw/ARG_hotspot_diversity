@@ -1,3 +1,5 @@
+# this script contains other iterations of co-occurrence analysis.  While not contained in the paper, for transparency of the analytical process, they were shared
+
 meta<-read.csv("~/Desktop/big_ARG_data/mgrast-allwgs.csv")
 head(meta)
 length(unique(meta$id))
@@ -140,7 +142,7 @@ for(i in 1:length(treatments)){
 	#creating a qvalue based on FDR
 	ps_melt$qval<-fdrtool(ps_melt$value, statistic="pvalue", plot=F,verbose=F)$qval
 	#making column names more relevant
-	
+
 	names(ps_melt)[3]<-"pval"
 	# if you are of the opinion that it is a good idea to subset your network based on adjusted P-values (qval in this case), you can then subset here
 	ps_sub<-subset(ps_melt)
@@ -226,7 +228,7 @@ for(i in 1:dim(vs)[1]){
 
 	if(thing1 != "tr" & thing1 != "sp"){thing1<-"arg"}
 	vs$vertex_type[i]<-thing1
-	
+
 }
 vs
 
